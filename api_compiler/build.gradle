@@ -1,0 +1,17 @@
+apply plugin: 'java-library'
+apply plugin: 'com.github.dcendents.android-maven'
+group='com.github.lannaican'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.squareup:javapoet:1.9.0'
+    implementation 'com.google.auto.service:auto-service:1.0-rc2'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.4'
+    implementation 'com.squareup.retrofit2:retrofit:2.5.0'
+    implementation project(path: ':api')
+}
+
+//指定编译的编码
+tasks.withType(JavaCompile){
+    options.encoding = "UTF-8"
+}
