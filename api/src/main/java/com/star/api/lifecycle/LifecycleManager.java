@@ -74,6 +74,9 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
     @Override
     public void onActivityDestroyed(Activity activity) {
         CompositeDisposable disposable = map.remove(activity);
+        if (disposable != null) {
+            disposable.clear();
+        }
         if (this.disposable == disposable) {
             this.disposable = null;
         }
