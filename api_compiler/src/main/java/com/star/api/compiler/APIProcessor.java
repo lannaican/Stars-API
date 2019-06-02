@@ -8,6 +8,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.star.api.APIService;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -93,7 +94,8 @@ public class APIProcessor extends AbstractProcessor {
         }
         content.append(").setResolver(manager.getResolver($T.class))");
         ClassName service = ClassName.bestGuess(serviceClass);
-        builder.addStatement(content.toString(), APIManager.class, APIManager.class, service, service, service);
+        ClassName manager = ClassName.get("com.star.api", "APIManager");
+        builder.addStatement(content.toString(), manager, manager, service, service, service);
         builder.returns(TypeName.get(element.getReturnType()));
         return builder.build();
     }
