@@ -43,9 +43,10 @@ public class APIManager {
         resolvers = new HashMap<>();
     }
 
-    public void addService(Class cls, @NonNull Object service, @NonNull ServiceResolver resolver) {
+    public APIManager addService(Class cls, @NonNull Object service, @NonNull ServiceResolver resolver) {
         services.put(cls, service);
         resolvers.put(cls, resolver);
+        return this;
     }
 
     @NonNull
@@ -53,16 +54,23 @@ public class APIManager {
         return services.get(cls);
     }
 
+    public void removeService(Class cls) {
+        services.remove(cls);
+        resolvers.remove(cls);
+    }
+
     public ServiceResolver getResolver(Class cls) {
         return resolvers.get(cls);
     }
 
-    public void setFailDefault(Fail response) {
+    public APIManager setFailDefault(Fail response) {
         failDefault = response;
+        return this;
     }
 
-    public void setListenerDefault(DefaultListener defaultListener) {
+    public APIManager setListenerDefault(DefaultListener defaultListener) {
         this.defaultListener = defaultListener;
+        return this;
     }
 
     public Fail getFailDefault() {
