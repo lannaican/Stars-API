@@ -33,8 +33,8 @@ public abstract class SocketListener extends WebSocketListener {
     public void onMessage(WebSocket webSocket, String text) {
         Map<String, Object> result = GsonUtil.fromJson(text, resultType);
         for (Method method : receiver.getClass().getMethods()) {
-            SocketReceiver receiver = method.getAnnotation(SocketReceiver.class);
-            if (receiver != null && receiver.value().equals(result.get("url"))) {
+            SocketReceiver sr = method.getAnnotation(SocketReceiver.class);
+            if (sr != null && sr.value().equals(result.get("url"))) {
                 Annotation[][] annotations = method.getParameterAnnotations();
                 Object[] params = new Object[annotations.length];
                 for (int i=0; i<annotations.length; i++) {
