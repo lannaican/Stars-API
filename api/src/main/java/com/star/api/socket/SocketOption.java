@@ -2,7 +2,6 @@ package com.star.api.socket;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.WebSocketListener;
 
 /**
  * Detail：
@@ -11,12 +10,10 @@ import okhttp3.WebSocketListener;
  */
 public interface SocketOption {
 
-    SocketBody createBody();
-
     OkHttpClient getClient();
 
     Request getRequest();
 
-    <T extends WebSocketListener> T getListener();
+    SocketListener getListener();
 
 }
