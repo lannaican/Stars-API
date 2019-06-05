@@ -41,7 +41,13 @@ public abstract class SocketListener extends WebSocketListener {
                     Annotation[] annotation = annotations[i];
                     if (annotation.length > 0 && annotation[0] instanceof Field) {
                         String key = ((Field)annotation[0]).value();
-                        params[i] = result.get(key);
+                        Object param = result.get(key);
+                        if (param instanceof Double) {
+                            if ((Double)param == ((Double)param).longValue()) {
+                                param = ((Double)param).longValue();
+                            }
+                        }
+                        params[i] = param;
                     }
                 }
                 try {

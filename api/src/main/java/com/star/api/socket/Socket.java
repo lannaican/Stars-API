@@ -22,11 +22,9 @@ import okhttp3.WebSocket;
 public class Socket {
 
     private WebSocket socket;
-    private SocketOption option;
     private Object service;
 
     public Socket(Class service, SocketOption option) {
-        this.option = option;
         OkHttpClient client = option.getClient();
         this.socket = client.newWebSocket(option.getRequest(), option.getListener());
         this.service = getProxy(service);
