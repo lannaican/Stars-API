@@ -13,10 +13,10 @@ public interface SocketOption {
 
     SocketBody createBody();
 
-    OkHttpClient createClient();
+    OkHttpClient getClient();
 
-    Request createRequest();
+    Request getRequest();
 
-    WebSocketListener createListener();
+    <T extends WebSocketListener> T getListener();
 
 }
