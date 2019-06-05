@@ -37,7 +37,7 @@ public abstract class SocketListener extends WebSocketListener {
 
     @Override
     public void onMessage(WebSocket webSocket, String text) {
-        Map<String, Object> result = GsonUtil.fromJson(text, resultType);
+        Map<String, String> result = GsonUtil.fromJson(text, resultType);
         for (final Method method : receiver.getClass().getMethods()) {
             SocketReceiver sr = method.getAnnotation(SocketReceiver.class);
             if (sr != null && sr.value().equals(result.get("url"))) {
@@ -47,13 +47,9 @@ public abstract class SocketListener extends WebSocketListener {
                     Annotation[] annotation = annotations[i];
                     if (annotation.length > 0 && annotation[0] instanceof Field) {
                         String key = ((Field)annotation[0]).value();
-                        Object param = result.get(key);
-                        if (param instanceof Double) {
-                            if ((Double)param == ((Double)param).longValue()) {
-                                param = ((Double)param).longValue();
-                            }
-                        }
-                        params[i] = param;
+                        String param = result.get(key);
+                        Type type = method.getParameterTypes()[i];
+                        params[i] = GsonUtil.fromJson(param, type);
                     }
                 }
                 handler.post(new Runnable() {
