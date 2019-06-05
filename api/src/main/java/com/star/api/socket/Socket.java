@@ -69,7 +69,7 @@ public class Socket {
     public void close() {
         if (socket != null) {
             socket.cancel();
-            socket.close(2000, "");
+            socket.close(1000, null);
             socket = null;
         }
     }
