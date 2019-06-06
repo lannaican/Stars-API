@@ -66,8 +66,7 @@ public class Socket {
      */
     public void close() {
         if (socket != null) {
-            socket.cancel();
-            socket.close(1000, null);
+            socket.close(1000, "Close");
             socket = null;
         }
     }
