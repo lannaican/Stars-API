@@ -53,9 +53,13 @@ public abstract class SocketListener extends WebSocketListener {
                     if (annotation.length > 0 && annotation[0] instanceof Field) {
                         String key = ((Field)annotation[0]).value();
                         String param = result.get(key);
-                        Type type = getRawType(method.getParameterTypes()[i]);
-                        type = getParameterUpperBound(0, (ParameterizedType) type);
-                        params[i] = GsonUtil.fromJson(param, type);
+                        Type parameterType = method.getGenericParameterTypes()[i];
+                        if (parameterType instanceof ParameterizedType) {
+                            Type type = getParameterUpperBound(0, (ParameterizedType) parameterType);
+                            params[i] = GsonUtil.fromJson(param, type);
+                        } else {
+                            params[i] = GsonUtil.fromJson(param, parameterType);
+                        }
                     }
                 }
                 handler.post(new Runnable() {
