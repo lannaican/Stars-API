@@ -20,7 +20,7 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
     private Map<Activity, CompositeDisposable> map = new HashMap<>();
     private CompositeDisposable disposable;
 
-    public static LifecycleManager instance;
+    private static LifecycleManager instance;
 
     public static void register(Application application) {
         instance = new LifecycleManager();
@@ -56,7 +56,9 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
 
     @Override
     public void onActivityPaused(Activity activity) {
-
+        if (activity.isFinishing()) {
+            remove(activity);
+        }
     }
 
     @Override
@@ -71,6 +73,10 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
 
     @Override
     public void onActivityDestroyed(Activity activity) {
+        remove(activity);
+    }
+
+    private void remove(Activity activity) {
         CompositeDisposable disposable = map.remove(activity);
         if (disposable != null) {
             disposable.clear();
