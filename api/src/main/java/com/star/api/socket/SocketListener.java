@@ -3,14 +3,12 @@ package com.star.api.socket;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.google.gson.reflect.TypeToken;
+import com.alibaba.fastjson.JSON;
 import com.star.annotation.Field;
-import com.star.api.GsonUtil;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.Map;
 
 import okhttp3.WebSocket;
@@ -24,19 +22,18 @@ import okhttp3.WebSocketListener;
 public abstract class SocketListener extends WebSocketListener {
 
     private Object receiver;
-    private Type resultType;
     private Handler handler;
 
     public SocketListener(Object receiver) {
         super();
         this.receiver = receiver;
-        this.resultType = new TypeToken<Map<String, Object>>(){}.getType();
         handler = new Handler(Looper.getMainLooper());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void onMessage(WebSocket webSocket, String text) {
-        Map<String, String> result = GsonUtil.fromJson(text, resultType);
+        Map<String, Object> result = JSON.parseObject(text, Map.class);
         for (final Method method : receiver.getClass().getMethods()) {
             SocketReceiver sr = method.getAnnotation(SocketReceiver.class);
             if (sr != null && sr.value().equals(result.get("url"))) {
@@ -46,9 +43,7 @@ public abstract class SocketListener extends WebSocketListener {
                     Annotation[] annotation = annotations[i];
                     if (annotation.length > 0 && annotation[0] instanceof Field) {
                         String key = ((Field)annotation[0]).value();
-                        String param = result.get(key);
-                        Type parameterType = method.getGenericParameterTypes()[i];
-                        params[i] = GsonUtil.fromJson(param, parameterType);
+                        params[i] = result.get(key);
                     }
                 }
                 handler.post(new Runnable() {

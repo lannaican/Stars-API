@@ -1,8 +1,8 @@
 package com.star.api.socket;
 
+import com.alibaba.fastjson.JSON;
 import com.star.annotation.Action;
 import com.star.annotation.Field;
-import com.star.api.GsonUtil;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
@@ -76,7 +76,7 @@ public class Socket {
      */
     private void send(Map<String, Object> params) {
         if (socket != null) {
-            socket.send(GsonUtil.toJson(params));
+            socket.send(JSON.toJSONString(params));
         }
     }
 
