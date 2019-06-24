@@ -4,11 +4,14 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.star.annotation.Field;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Map;
 
 import okhttp3.WebSocket;
@@ -43,7 +46,12 @@ public abstract class SocketListener extends WebSocketListener {
                     Annotation[] annotation = annotations[i];
                     if (annotation.length > 0 && annotation[0] instanceof Field) {
                         String key = ((Field)annotation[0]).value();
-                        params[i] = result.get(key);
+                        Object o = result.get(key);
+                        if (o instanceof JSONObject) {
+                            Type type = method.getGenericParameterTypes()[i];
+                            o = ((JSONObject) o).toJavaObject(type);
+                        }
+                        params[i] = o;
                     }
                 }
                 handler.post(new Runnable() {
