@@ -1,6 +1,7 @@
 package com.star.api.socket;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.star.annotation.Action;
 import com.star.annotation.Field;
 
@@ -76,7 +77,7 @@ public class Socket {
      */
     private void send(Map<String, Object> params) {
         if (socket != null) {
-            socket.send(JSON.toJSONString(params));
+            socket.send(JSON.toJSONString(params, SerializerFeature.WriteClassName));
         }
     }
 
