@@ -77,7 +77,7 @@ public class Socket {
      */
     private void send(Map<String, Object> params) {
         if (socket != null) {
-            socket.send(JSON.toJSONString(params, SerializerFeature.WriteClassName));
+            socket.send(JSON.toJSONString(params));
         }
     }
 

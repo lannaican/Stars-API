@@ -12,6 +12,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.util.Map;
 
 import okhttp3.WebSocket;
@@ -47,11 +48,28 @@ public abstract class SocketListener extends WebSocketListener {
                     if (annotation.length > 0 && annotation[0] instanceof Field) {
                         String key = ((Field)annotation[0]).value();
                         Object o = result.get(key);
+                        if (o == null) {
+                            params[i] = null;
+                            continue;
+                        }
+                        Type type = method.getGenericParameterTypes()[i];
                         if (o instanceof JSONObject) {
-                            Type type = method.getGenericParameterTypes()[i];
                             o = ((JSONObject) o).toJavaObject(type);
                         }
-                        params[i] = o;
+                        if (o instanceof JSONArray) {
+                            o = JSON.parseObject(((JSONArray) o).toJSONString(), type);
+                        }
+                        switch (type.toString()) {
+                            case "float":
+                                params[i] = ((BigDecimal)o).floatValue();
+                                break;
+                            case "double":
+                                params[i] = ((BigDecimal)o).doubleValue();
+                                break;
+                            default:
+                                params[i] = o;
+                                break;
+                        }
                     }
                 }
                 handler.post(new Runnable() {
