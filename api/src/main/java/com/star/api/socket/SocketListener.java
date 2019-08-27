@@ -34,10 +34,34 @@ public abstract class SocketListener extends WebSocketListener {
         handler = new Handler(Looper.getMainLooper());
     }
 
+    /**
+     * 服务端返回错误码
+     */
+    public abstract void onResultFail(int code, String message);
+
+    /**
+     * 消息结构
+     * url: String
+     * code: int
+     * message: String
+     * 其他: 自定义字段
+     */
     @SuppressWarnings("unchecked")
     @Override
     public void onMessage(WebSocket webSocket, String text) {
-        Map<String, Object> result = JSON.parseObject(text, Map.class);
+        final Map<String, Object> result = JSON.parseObject(text, Map.class);
+        //错误处理
+        final int code = (int)result.get("code");
+        if (code != 200) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    onResultFail(code, (String) result.get("message"));
+                }
+            });
+            return;
+        }
+        //正常反射
         for (final Method method : receiver.getClass().getMethods()) {
             SocketReceiver sr = method.getAnnotation(SocketReceiver.class);
             if (sr != null && sr.value().equals(result.get("url"))) {
