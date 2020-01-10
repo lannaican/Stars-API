@@ -13,6 +13,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.WebSocket;
@@ -25,12 +26,12 @@ import okhttp3.WebSocketListener;
  */
 public abstract class SocketListener extends WebSocketListener {
 
-    private Object receiver;
+    private List<Object> receivers;
     private Handler handler;
 
-    public SocketListener(Object receiver) {
+    public SocketListener(List<Object> receivers) {
         super();
-        this.receiver = receiver;
+        this.receivers = receivers;
         handler = new Handler(Looper.getMainLooper());
     }
 
@@ -62,53 +63,55 @@ public abstract class SocketListener extends WebSocketListener {
             return;
         }
         //正常反射
-        for (final Method method : receiver.getClass().getMethods()) {
-            SocketReceiver sr = method.getAnnotation(SocketReceiver.class);
-            if (sr != null && sr.value().equals(result.get("url"))) {
-                Annotation[][] annotations = method.getParameterAnnotations();
-                final Object[] params = new Object[annotations.length];
-                for (int i=0; i<annotations.length; i++) {
-                    Annotation[] annotation = annotations[i];
-                    if (annotation.length > 0 && annotation[0] instanceof Field) {
-                        String key = ((Field)annotation[0]).value();
-                        Object o = result.get(key);
-                        if (o == null) {
-                            params[i] = null;
-                            continue;
-                        }
-                        Type type = method.getGenericParameterTypes()[i];
-                        if (o instanceof JSONObject) {
-                            o = ((JSONObject) o).toJavaObject(type);
-                        }
-                        if (o instanceof JSONArray) {
-                            o = JSON.parseObject(((JSONArray) o).toJSONString(), type);
-                        }
-                        switch (type.toString()) {
-                            case "float":
-                                params[i] = ((BigDecimal)o).floatValue();
-                                break;
-                            case "double":
-                                params[i] = ((BigDecimal)o).doubleValue();
-                                break;
-                            default:
-                                params[i] = o;
-                                break;
+        for (final Object receiver : receivers) {
+            for (final Method method : receiver.getClass().getMethods()) {
+                SocketReceiver sr = method.getAnnotation(SocketReceiver.class);
+                if (sr != null && sr.value().equals(result.get("url"))) {
+                    Annotation[][] annotations = method.getParameterAnnotations();
+                    final Object[] params = new Object[annotations.length];
+                    for (int i=0; i<annotations.length; i++) {
+                        Annotation[] annotation = annotations[i];
+                        if (annotation.length > 0 && annotation[0] instanceof Field) {
+                            String key = ((Field)annotation[0]).value();
+                            Object o = result.get(key);
+                            if (o == null) {
+                                params[i] = null;
+                                continue;
+                            }
+                            Type type = method.getGenericParameterTypes()[i];
+                            if (o instanceof JSONObject) {
+                                o = ((JSONObject) o).toJavaObject(type);
+                            }
+                            if (o instanceof JSONArray) {
+                                o = JSON.parseObject(((JSONArray) o).toJSONString(), type);
+                            }
+                            switch (type.toString()) {
+                                case "float":
+                                    params[i] = ((BigDecimal)o).floatValue();
+                                    break;
+                                case "double":
+                                    params[i] = ((BigDecimal)o).doubleValue();
+                                    break;
+                                default:
+                                    params[i] = o;
+                                    break;
+                            }
                         }
                     }
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                method.invoke(receiver, params);
+                            } catch (IllegalAccessException e) {
+                                e.printStackTrace();
+                            } catch (InvocationTargetException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                    return;
                 }
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            method.invoke(receiver, params);
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        } catch (InvocationTargetException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                return;
             }
         }
     }
