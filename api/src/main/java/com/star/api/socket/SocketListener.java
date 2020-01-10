@@ -110,7 +110,6 @@ public abstract class SocketListener extends WebSocketListener {
                             }
                         }
                     });
-                    return;
                 }
             }
         }
