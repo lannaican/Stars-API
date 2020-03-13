@@ -37,6 +37,10 @@ public class CallBack<T> implements Observer<T> {
         this.observable = observable;
     }
 
+    public Observable<T> getObservable() {
+        return observable;
+    }
+
     /**
      * 设置监听器
      */
@@ -102,6 +106,13 @@ public class CallBack<T> implements Observer<T> {
         observable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this);
+    }
+
+    /**
+     * 同步执行
+     */
+    public T execute() {
+        return observable.blockingFirst();
     }
 
     /**
