@@ -5,8 +5,6 @@ group='com.github.lannaican'
 android {
     compileSdkVersion 28
 
-
-
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 28
@@ -34,7 +32,4 @@ dependencies {
     implementation 'com.alibaba:fastjson:1.2.58'
 
     api 'com.github.lannaican:Stars-API-Annotation:1.0.1'
-
-    implementation 'com.google.auto.service:auto-service:1.0-rc6'
-    annotationProcessor 'com.google.auto.service:auto-service:1.0-rc6'
 }
