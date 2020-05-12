@@ -17,9 +17,8 @@ import java.util.Map;
 import io.reactivex.annotations.NonNull;
 
 /**
- * Detail：
- * Author：Stars
- * Create Time：2019/4/26 10:24
+ * 说明：API管理
+ * 时间：2020/5/12 15:18
  */
 public class APIManager {
 
@@ -39,6 +38,14 @@ public class APIManager {
         LifecycleManager.register(application);
     }
 
+
+    private APIManager() {
+        services = new HashMap<>();
+    }
+
+    /**
+     * 获取实例
+     */
     public static APIManager getInstance() {
         if (instance == null) {
             instance = new APIManager();
@@ -46,34 +53,40 @@ public class APIManager {
         return instance;
     }
 
-    private APIManager() {
-        services = new HashMap<>();
-    }
-
     /**
      * 设置环境
      */
     public void setEnvironment(@NonNull Environment environment, @NonNull ServiceProvider provider) {
-        clear();
+        services.clear();
         this.environment = environment;
         for (Service service : provider.getServices(environment)) {
             services.put(service.getCls(), service);
         }
     }
 
+    /**
+     * 获取环境
+     */
     public Environment getEnvironment() {
         return environment;
     }
 
+    /**
+     * 设置失败回调
+     */
     public APIManager setFailDefault(Fail response) {
         failDefault = response;
         return this;
     }
 
+    /**
+     * 设置监听回调
+     */
     public APIManager setListenerDefault(DefaultListener defaultListener) {
         this.defaultListener = defaultListener;
         return this;
     }
+
 
     public Fail getFailDefault() {
         return failDefault;
@@ -86,16 +99,6 @@ public class APIManager {
     public void removeService(Class cls) {
         services.remove(cls);
     }
-
-    /**
-     * 清除所有设置
-     */
-    public void clear() {
-        services.clear();
-        failDefault = null;
-        defaultListener = null;
-    }
-
 
     //Auto Call
     public final ServiceResolver getResolver(Class cls) {
