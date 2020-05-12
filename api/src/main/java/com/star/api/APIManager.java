@@ -57,7 +57,7 @@ public class APIManager {
         clear();
         this.environment = environment;
         for (Service service : provider.getServices(environment)) {
-            services.put(service.getService().getClass(), service);
+            services.put(service.getCls(), service);
         }
     }
 
@@ -99,13 +99,23 @@ public class APIManager {
 
     //Auto Call
     public final ServiceResolver getResolver(Class cls) {
-        return services.get(cls).getResolver();
+        Service service = services.get(cls);
+        if (service != null) {
+            return service.getResolver();
+        } else {
+            throw new RuntimeException("Service not found");
+        }
     }
 
 
     //Auto Call
     @NonNull
     public final Object getService(Class cls) {
-        return services.get(cls).getService();
+        Service service = services.get(cls);
+        if (service != null) {
+            return service.getService();
+        } else {
+            throw new RuntimeException("Service not found");
+        }
     }
 }

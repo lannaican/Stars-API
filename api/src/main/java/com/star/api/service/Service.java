@@ -11,11 +11,21 @@ import com.star.api.resolver.ServiceResolver;
 public class Service {
 
     private Object service;
+    private Class cls;
     private ServiceResolver resolver;
 
-    public Service(@NonNull Object service, @NonNull ServiceResolver resolver) {
+    public Service(@NonNull Class cls, @NonNull Object service, @NonNull ServiceResolver resolver) {
+        this.cls = cls;
         this.service = service;
         this.resolver = resolver;
+    }
+
+    public Class getCls() {
+        return cls;
+    }
+
+    public void setCls(Class cls) {
+        this.cls = cls;
     }
 
     public Object getService() {
