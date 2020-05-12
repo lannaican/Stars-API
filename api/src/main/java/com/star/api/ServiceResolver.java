@@ -19,6 +19,6 @@ public interface ServiceResolver<T> {
     /**
      * 发生错误
      */
-    void error(CallBack<T> callBack);
+    void error(CallBack<T> callBack, Throwable e);
 
 }

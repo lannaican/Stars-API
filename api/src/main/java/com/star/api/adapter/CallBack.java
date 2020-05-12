@@ -173,7 +173,7 @@ public class CallBack<T> implements Observer<T> {
 
     @Override
     public void onError(Throwable e) {
-        resolver.error(this);
+        resolver.error(this, e);
         callComplete();
     }
 
