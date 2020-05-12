@@ -1,7 +1,7 @@
 package com.star.api.adapter;
 
 import com.star.api.APIManager;
-import com.star.api.ServiceResolver;
+import com.star.api.resolver.ServiceResolver;
 import com.star.api.adapter.callback.Cancel;
 import com.star.api.adapter.callback.Complete;
 import com.star.api.adapter.callback.Fail;

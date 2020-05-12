@@ -1,4 +1,4 @@
-package com.star.api;
+package com.star.api.resolver;
 
 import com.star.api.adapter.CallBack;
 
