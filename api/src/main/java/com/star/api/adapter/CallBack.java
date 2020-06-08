@@ -1,12 +1,12 @@
 package com.star.api.adapter;
 
 import com.star.api.APIManager;
-import com.star.api.resolver.ServiceResolver;
 import com.star.api.adapter.callback.Cancel;
 import com.star.api.adapter.callback.Complete;
 import com.star.api.adapter.callback.Fail;
 import com.star.api.adapter.callback.Success;
 import com.star.api.lifecycle.LifecycleManager;
+import com.star.api.resolver.ServiceResolver;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -32,6 +32,9 @@ public class CallBack<T> implements Observer<T> {
     private Listener listener;
 
     private Disposable disposable;
+
+    //不绑定生命周期
+    private boolean unbindLife;
 
     public CallBack(Observable<T> observable) {
         this.observable = observable;
@@ -100,6 +103,14 @@ public class CallBack<T> implements Observer<T> {
     }
 
     /**
+     * 独立生命周期
+     */
+    public CallBack<T> setUnbindLife(boolean unbindLife) {
+        this.unbindLife = unbindLife;
+        return this;
+    }
+
+    /**
      * 执行
      */
     public void go() {
@@ -150,7 +161,9 @@ public class CallBack<T> implements Observer<T> {
     @Override
     public void onSubscribe(Disposable d) {
         disposable = d;
-        LifecycleManager.getInstance().add(d);
+        if (!unbindLife) {
+            LifecycleManager.getInstance().add(d);
+        }
         if (listener != null) {
             listener.onStart(this);
         }
