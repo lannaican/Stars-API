@@ -37,6 +37,13 @@ public class LifecycleManager implements Application.ActivityLifecycleCallbacks 
         }
     }
 
+    public void add(Activity activity, Disposable disposable) {
+        CompositeDisposable compositeDisposable = map.get(activity);
+        if (compositeDisposable != null) {
+            compositeDisposable.add(disposable);
+        }
+    }
+
     @Override
     public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
         CompositeDisposable disposable = new CompositeDisposable();

@@ -1,5 +1,7 @@
 package com.star.api.adapter;
 
+import android.app.Activity;
+
 import com.star.api.APIManager;
 import com.star.api.adapter.callback.Cancel;
 import com.star.api.adapter.callback.Complete;
@@ -7,6 +9,8 @@ import com.star.api.adapter.callback.Fail;
 import com.star.api.adapter.callback.Success;
 import com.star.api.lifecycle.LifecycleManager;
 import com.star.api.resolver.ServiceResolver;
+
+import java.lang.ref.WeakReference;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -35,6 +39,8 @@ public class CallBack<T> implements Observer<T> {
 
     //不绑定生命周期
     private boolean unbindLife;
+
+    private WeakReference<Activity> bindActivity;
 
     public CallBack(Observable<T> observable) {
         this.observable = observable;
@@ -103,6 +109,14 @@ public class CallBack<T> implements Observer<T> {
     }
 
     /**
+     * 绑定Activity生命周期
+     */
+    public CallBack<T> setBindActivity(Activity activity) {
+        this.bindActivity = new WeakReference<>(activity);
+        return this;
+    }
+
+    /**
      * 独立生命周期
      */
     public CallBack<T> setUnbindLife(boolean unbindLife) {
@@ -162,7 +176,12 @@ public class CallBack<T> implements Observer<T> {
     public void onSubscribe(Disposable d) {
         disposable = d;
         if (!unbindLife) {
-            LifecycleManager.getInstance().add(d);
+            if (bindActivity != null && bindActivity.get() != null) {
+                LifecycleManager.getInstance().add(bindActivity.get(), d);
+                bindActivity = null;
+            } else {
+                LifecycleManager.getInstance().add(d);
+            }
         }
         if (listener != null) {
             listener.onStart(this);
