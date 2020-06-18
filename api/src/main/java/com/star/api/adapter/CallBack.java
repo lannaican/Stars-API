@@ -33,6 +33,8 @@ public class CallBack<T> implements Observer<T> {
     private Cancel cancel;
     private Complete complete;
 
+    private Object tag;
+
     private Listener listener;
 
     private Disposable disposable;
@@ -124,6 +126,11 @@ public class CallBack<T> implements Observer<T> {
         return this;
     }
 
+    public CallBack<T> setTag(Object tag) {
+        this.tag = tag;
+        return this;
+    }
+
     /**
      * 执行
      */
@@ -157,6 +164,10 @@ public class CallBack<T> implements Observer<T> {
 
     public Complete getComplete() {
         return complete;
+    }
+
+    public Object getTag() {
+        return tag;
     }
 
     /**
