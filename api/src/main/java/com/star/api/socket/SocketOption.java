@@ -16,4 +16,6 @@ public interface SocketOption {
 
     SocketListener getListener();
 
+    SocketConvert getConvert();
+
 }

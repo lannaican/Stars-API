@@ -1,7 +1,5 @@
 package com.star.api.socket;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.star.annotation.Action;
 import com.star.annotation.Field;
 
@@ -24,11 +22,13 @@ public class Socket {
 
     private WebSocket socket;
     private Object service;
+    private SocketConvert convert;
 
     public Socket(Class service, SocketOption option) {
         OkHttpClient client = option.getClient();
         this.socket = client.newWebSocket(option.getRequest(), option.getListener());
         this.service = getProxy(service);
+        this.convert = option.getConvert();
     }
 
     public Object getService() {
@@ -77,7 +77,7 @@ public class Socket {
      */
     private void send(Map<String, Object> params) {
         if (socket != null) {
-            socket.send(JSON.toJSONString(params));
+            socket.send(convert.convert(params));
         }
     }
 
