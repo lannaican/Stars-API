@@ -27,10 +27,12 @@ import okhttp3.WebSocketListener;
 public abstract class SocketListener extends WebSocketListener {
 
     private List<Object> receivers;
+    private SocketConvert convert;
     private Handler handler;
 
-    public SocketListener(List<Object> receivers) {
+    public SocketListener(SocketConvert convert, List<Object> receivers) {
         super();
+        this.convert = convert;
         this.receivers = receivers;
         handler = new Handler(Looper.getMainLooper());
     }
@@ -50,7 +52,7 @@ public abstract class SocketListener extends WebSocketListener {
     @SuppressWarnings("unchecked")
     @Override
     public void onMessage(WebSocket webSocket, String text) {
-        final Map<String, Object> result = JSON.parseObject(text, Map.class);
+        final Map<String, Object> result = convert.convertReceive(text);
         //错误处理
         final int code = (int)result.get("code");
         if (code != 200) {

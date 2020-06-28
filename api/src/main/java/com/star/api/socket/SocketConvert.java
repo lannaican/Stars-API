@@ -7,5 +7,8 @@ import java.util.Map;
  * 时间：2020/6/28 22:26
  */
 public interface SocketConvert {
-    String convert(Map<String, Object> params);
+
+    String convertSend(Map<String, Object> params);
+
+    Map<String, Object> convertReceive(String message);
 }

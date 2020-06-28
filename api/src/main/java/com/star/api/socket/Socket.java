@@ -77,7 +77,7 @@ public class Socket {
      */
     private void send(Map<String, Object> params) {
         if (socket != null) {
-            socket.send(convert.convert(params));
+            socket.send(convert.convertSend(params));
         }
     }
 
