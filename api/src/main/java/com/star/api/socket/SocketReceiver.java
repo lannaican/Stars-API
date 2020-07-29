@@ -6,9 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Detail：
- * Author：Stars
- * Create Time：2019/6/5 9:18
+ * Socket接收器
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

@@ -4,9 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Detail：
- * Author：Stars
- * Create Time：2019/6/4 9:17
+ *
  */
 public class SocketManager {
 
@@ -24,8 +22,8 @@ public class SocketManager {
     /**
      * 注册
      */
-    public void register(Class service, SocketOption option) {
-        sockets.put(service, new Socket(service, option));
+    public void register(Socket socket) {
+        sockets.put(socket.getServiceClass(), socket);
     }
 
     /**
