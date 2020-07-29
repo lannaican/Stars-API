@@ -51,14 +51,17 @@ public class Socket extends WebSocketListener {
 
     public Socket(Class serviceClass, OkHttpClient client) {
         this.serviceClass = serviceClass;
-        this.state = SocketState.Connecting;
         this.client = client;
         this.service = getProxy(serviceClass);
         handler = new Handler(Looper.getMainLooper());
         SocketManager.getInstance().register(this);
     }
 
+    /**
+     * 开始连接
+     */
     public void connect(String url) {
+        onStateChanged(SocketState.Connecting);
         this.socket = client.newWebSocket(new Request.Builder().url(url).build(), this);
     }
 
