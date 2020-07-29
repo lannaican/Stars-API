@@ -45,7 +45,7 @@ public class Socket extends WebSocketListener {
     private List<Object> receivers = new ArrayList<>(); //接收器
     private SocketConverter convert = new GSONConverter();  //消息转换器
     private SocketInterceptor interceptor;  //拦截器
-    private SocketStateListener socketStateListener;
+    private List<SocketStateListener> socketStateListeners = new ArrayList<>();
 
     private long reconnectDelay = 3 * 1000;    //重连间隔
 
@@ -73,8 +73,16 @@ public class Socket extends WebSocketListener {
         this.interceptor = interceptor;
     }
 
-    public void setSocketStateListener(SocketStateListener listener) {
-        this.socketStateListener = listener;
+    public void addSocketStateListener(SocketStateListener listener) {
+        this.socketStateListeners.add(listener);
+    }
+
+    public void removeSocketStateListener(SocketStateListener listener){
+        socketStateListeners.remove(listener);
+    }
+
+    public void clearSocketStateListener() {
+        socketStateListeners.clear();
     }
 
     public void addReceiver(Object receiver) {
@@ -233,8 +241,8 @@ public class Socket extends WebSocketListener {
             }, reconnectDelay);
         }
         this.state = state;
-        if (socketStateListener != null) {
-            socketStateListener.onStateChanged(state);
+        for (SocketStateListener listener : socketStateListeners) {
+            listener.onStateChanged(state);
         }
     }
 
@@ -257,6 +265,7 @@ public class Socket extends WebSocketListener {
             socket = null;
         }
         onStateChanged(SocketState.Close);
+        socketStateListeners.clear();
         SocketManager.getInstance().unregister(getServiceClass());
     }
 
