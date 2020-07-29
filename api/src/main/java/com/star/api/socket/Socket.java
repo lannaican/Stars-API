@@ -49,14 +49,17 @@ public class Socket extends WebSocketListener {
 
     private long reconnectDelay = 3 * 1000;    //重连间隔
 
-    public Socket(Class serviceClass, OkHttpClient client, Request request) {
+    public Socket(Class serviceClass, OkHttpClient client) {
         this.serviceClass = serviceClass;
         this.state = SocketState.Connecting;
         this.client = client;
-        this.socket = client.newWebSocket(request, this);
         this.service = getProxy(serviceClass);
         handler = new Handler(Looper.getMainLooper());
         SocketManager.getInstance().register(this);
+    }
+
+    public void connect(String url) {
+        this.socket = client.newWebSocket(new Request.Builder().url(url).build(), this);
     }
 
     public void setConvert(SocketConverter convert) {
