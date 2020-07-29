@@ -21,6 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 
@@ -31,18 +34,26 @@ public class Socket extends WebSocketListener {
 
     private Handler handler;
 
+    private OkHttpClient client;
     private WebSocket socket;
 
     private Class serviceClass;
     private Object service; //用于发送消息Service
 
+    private SocketState state = SocketState.None;   //连接状态
+
     private List<Object> receivers = new ArrayList<>(); //接收器
     private SocketConverter convert = new GSONConverter();  //消息转换器
     private SocketInterceptor interceptor;  //拦截器
+    private SocketStateListener socketStateListener;
 
-    public Socket(Class serviceClass, WebSocket webSocket) {
+    private long reconnectDelay = 3 * 1000;    //重连间隔
+
+    public Socket(Class serviceClass, OkHttpClient client, Request request) {
         this.serviceClass = serviceClass;
-        this.socket = webSocket;
+        this.state = SocketState.Connecting;
+        this.client = client;
+        this.socket = client.newWebSocket(request, this);
         this.service = getProxy(serviceClass);
         handler = new Handler(Looper.getMainLooper());
         SocketManager.getInstance().register(this);
@@ -54,6 +65,10 @@ public class Socket extends WebSocketListener {
 
     public void setInterceptor(SocketInterceptor interceptor) {
         this.interceptor = interceptor;
+    }
+
+    public void setSocketStateListener(SocketStateListener listener) {
+        this.socketStateListener = listener;
     }
 
     public void addReceiver(Object receiver) {
@@ -101,6 +116,29 @@ public class Socket extends WebSocketListener {
                         return null;
                     }
                 });
+    }
+
+    @Override
+    public void onOpen(WebSocket webSocket, Response response) {
+        super.onOpen(webSocket, response);
+        onStateChanged(SocketState.Connected);
+    }
+
+    @Override
+    public void onClosing(WebSocket webSocket, int code, String reason) {
+        super.onClosing(webSocket, code, reason);
+        onStateChanged(SocketState.Disconnect);
+    }
+
+    @Override
+    public void onClosed(WebSocket webSocket, int code, String reason) {
+        super.onClosed(webSocket, code, reason);
+    }
+
+    @Override
+    public void onFailure(WebSocket webSocket, Throwable t, Response response) {
+        super.onFailure(webSocket, t, response);
+        onStateChanged(SocketState.ConnectFail);
     }
 
     /**
@@ -179,6 +217,31 @@ public class Socket extends WebSocketListener {
         }
     }
 
+    private void onStateChanged(SocketState state) {
+        if (state == SocketState.ConnectFail) {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    reconnect();
+                }
+            }, reconnectDelay);
+        }
+        this.state = state;
+        if (socketStateListener != null) {
+            socketStateListener.onStateChanged(state);
+        }
+    }
+
+    /**
+     * 重新连接
+     */
+    private void reconnect() {
+        if (socket != null && state != SocketState.Reconnecting) {
+            onStateChanged(SocketState.Reconnecting);
+            socket = client.newWebSocket(socket.request(), this);
+        }
+    }
+
     /**
      * 关闭连接
      */
@@ -187,6 +250,7 @@ public class Socket extends WebSocketListener {
             socket.close(1000, "Close");
             socket = null;
         }
+        onStateChanged(SocketState.Close);
         SocketManager.getInstance().unregister(getServiceClass());
     }
 
