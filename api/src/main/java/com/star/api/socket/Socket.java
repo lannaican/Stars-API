@@ -231,7 +231,7 @@ public class Socket extends WebSocketListener {
         }
     }
 
-    private void onStateChanged(SocketState state) {
+    private void onStateChanged(final SocketState state) {
         if (state == SocketState.ConnectFail) {
             handler.postDelayed(new Runnable() {
                 @Override
@@ -241,9 +241,14 @@ public class Socket extends WebSocketListener {
             }, reconnectDelay);
         }
         this.state = state;
-        for (SocketStateListener listener : socketStateListeners) {
-            listener.onStateChanged(state);
-        }
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                for (SocketStateListener listener : socketStateListeners) {
+                    listener.onStateChanged(state);
+                }
+            }
+        });
     }
 
     /**
