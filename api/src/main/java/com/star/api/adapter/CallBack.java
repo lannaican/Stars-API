@@ -7,6 +7,7 @@ import com.star.api.adapter.callback.Cancel;
 import com.star.api.adapter.callback.Complete;
 import com.star.api.adapter.callback.Fail;
 import com.star.api.adapter.callback.Success;
+import com.star.api.lifecycle.LifecycleDisposable;
 import com.star.api.lifecycle.LifecycleManager;
 import com.star.api.resolver.ServiceResolver;
 
@@ -185,13 +186,20 @@ public class CallBack<T> implements Observer<T> {
 
     @Override
     public void onSubscribe(Disposable d) {
-        disposable = d;
+        LifecycleDisposable lifecycleDisposable = new LifecycleDisposable(d);
+        lifecycleDisposable.setOnDisposeListener(new LifecycleDisposable.OnDisposeListener() {
+            @Override
+            public void onDispose() {
+                callComplete();
+            }
+        });
+        disposable = lifecycleDisposable;
         if (!unbindLife) {
             if (bindActivity != null && bindActivity.get() != null) {
-                LifecycleManager.getInstance().add(bindActivity.get(), d);
+                LifecycleManager.getInstance().add(bindActivity.get(), disposable);
                 bindActivity = null;
             } else {
-                LifecycleManager.getInstance().add(d);
+                LifecycleManager.getInstance().add(disposable);
             }
         }
         if (listener != null) {
@@ -208,9 +216,11 @@ public class CallBack<T> implements Observer<T> {
     public void callComplete() {
         if (complete != null) {
             complete.onComplete(this);
+            complete = null;
         }
         if (listener != null) {
             listener.onComplete(this);
+            listener = null;
         }
     }
 
